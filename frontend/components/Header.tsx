@@ -9,7 +9,11 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 const WISHLIST_KEY = "godavari-basket-wishlist";
 
@@ -27,11 +31,7 @@ function getWishlistCount(): number {
 
     const parsed = JSON.parse(stored);
 
-    if (!Array.isArray(parsed)) {
-      return 0;
-    }
-
-    return parsed.length;
+    return Array.isArray(parsed) ? parsed.length : 0;
   } catch {
     return 0;
   }
@@ -48,9 +48,9 @@ export default function Header({
   const [search, setSearch] = useState("");
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  /* =====================================================
+  /* =========================================================
      WISHLIST COUNT
-  ===================================================== */
+  ========================================================= */
 
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -72,9 +72,9 @@ export default function Header({
     };
   }, []);
 
-  /* =====================================================
+  /* =========================================================
      SEARCH
-  ===================================================== */
+  ========================================================= */
 
   function go() {
     const q = search.trim().toLowerCase();
@@ -86,13 +86,12 @@ export default function Header({
     );
 
     /*
-     * Close mobile menu after searching.
+     * Close mobile menu if it is open.
      */
     setOpen(false);
 
     /*
-     * Scroll to product section after the
-     * search event has been dispatched.
+     * Scroll to products.
      */
     setTimeout(() => {
       document.getElementById("shop")?.scrollIntoView({
@@ -102,12 +101,12 @@ export default function Header({
     }, 100);
   }
 
-  /* =====================================================
-     SEARCH KEYBOARD HANDLER
-  ===================================================== */
+  /* =========================================================
+     SEARCH KEYBOARD
+  ========================================================= */
 
   function handleSearchKeyDown(
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: KeyboardEvent<HTMLInputElement>
   ) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -115,9 +114,9 @@ export default function Header({
     }
   }
 
-  /* =====================================================
+  /* =========================================================
      CLEAR SEARCH
-  ===================================================== */
+  ========================================================= */
 
   function clearSearch() {
     setSearch("");
@@ -129,9 +128,9 @@ export default function Header({
     );
   }
 
-  /* =====================================================
-     OPEN WISHLIST
-  ===================================================== */
+  /* =========================================================
+     WISHLIST
+  ========================================================= */
 
   function openWishlist() {
     window.dispatchEvent(
@@ -150,9 +149,9 @@ export default function Header({
     }, 100);
   }
 
-  /* =====================================================
+  /* =========================================================
      SHOW ALL PRODUCTS
-  ===================================================== */
+  ========================================================= */
 
   function showAllProducts() {
     setSearch("");
@@ -180,19 +179,23 @@ export default function Header({
     <>
       <header className="site-header">
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
+        {/* =====================================================
+            HEADER INNER
+        ===================================================== */}
 
         <div className="container-wide header-inner">
 
-          {/* MOBILE MENU BUTTON */}
+          {/* ===================================================
+              MOBILE MENU BUTTON
+          =================================================== */}
 
           <button
             type="button"
             className="mobile-menu-trigger"
             onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={
+              open ? "Close menu" : "Open menu"
+            }
             aria-expanded={open}
           >
             {open ? (
@@ -202,7 +205,9 @@ export default function Header({
             )}
           </button>
 
-          {/* BRAND */}
+          {/* ===================================================
+              BRAND
+          =================================================== */}
 
           <a
             href="#"
@@ -223,9 +228,9 @@ export default function Header({
             </span>
           </a>
 
-          {/* =================================================
+          {/* ===================================================
               DESKTOP NAVIGATION
-          ================================================= */}
+          =================================================== */}
 
           <nav
             className="desktop-nav"
@@ -261,13 +266,15 @@ export default function Header({
             </a>
           </nav>
 
-          {/* =================================================
+          {/* ===================================================
               HEADER ACTIONS
-          ================================================= */}
+          =================================================== */}
 
           <div className="header-actions">
 
-            {/* REGION / CURRENCY */}
+            {/* =================================================
+                REGION / CURRENCY
+            ================================================= */}
 
             <button
               type="button"
@@ -283,7 +290,9 @@ export default function Header({
               <ChevronDown size={12} />
             </button>
 
-            {/* DESKTOP SEARCH */}
+            {/* =================================================
+                DESKTOP SEARCH
+            ================================================= */}
 
             <div className="header-search">
 
@@ -322,7 +331,56 @@ export default function Header({
 
             </div>
 
-            {/* ACCOUNT */}
+            {/* =================================================
+                MOBILE SEARCH
+                IMPORTANT:
+                This is OUTSIDE mobile-panel.
+            ================================================= */}
+
+            <div className="mobile-search">
+
+              <Search
+                size={16}
+                className="mobile-search-leading-icon"
+              />
+
+              <input
+                type="search"
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                onKeyDown={
+                  handleSearchKeyDown
+                }
+                placeholder="Search"
+                aria-label="Search products"
+                autoComplete="off"
+              />
+
+              {search && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={go}
+                aria-label="Search"
+              >
+                <Search size={16} />
+              </button>
+
+            </div>
+
+            {/* =================================================
+                ACCOUNT
+            ================================================= */}
 
             <button
               type="button"
@@ -388,51 +446,15 @@ export default function Header({
           </div>
         </div>
 
-        {/* =================================================
+        {/* =====================================================
             MOBILE MENU
-            SEARCH STAYS INSIDE THE MENU
-        ================================================= */}
+
+            SEARCH IS NO LONGER HERE.
+            Only navigation items remain.
+        ===================================================== */}
 
         {open && (
           <div className="mobile-panel">
-
-            {/* MOBILE SEARCH */}
-
-            <div className="mobile-search">
-
-              <input
-                type="search"
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                onKeyDown={
-                  handleSearchKeyDown
-                }
-                placeholder="Search Godavari Basket"
-                aria-label="Search products"
-                autoComplete="off"
-              />
-
-              {search && (
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  aria-label="Clear search"
-                >
-                  <X size={15} />
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={go}
-                aria-label="Search"
-              >
-                <Search size={18} />
-              </button>
-
-            </div>
 
             {/* HOME */}
 
@@ -457,9 +479,7 @@ export default function Header({
               SHOP
             </a>
 
-            {/* =================================================
-                WISHLIST
-            ================================================= */}
+            {/* WISHLIST */}
 
             <button
               type="button"
