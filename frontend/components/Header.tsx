@@ -19,9 +19,7 @@ function getWishlistCount(): number {
   }
 
   try {
-    const stored = localStorage.getItem(
-      WISHLIST_KEY
-    );
+    const stored = localStorage.getItem(WISHLIST_KEY);
 
     if (!stored) {
       return 0;
@@ -29,11 +27,7 @@ function getWishlistCount(): number {
 
     const parsed = JSON.parse(stored);
 
-    if (!Array.isArray(parsed)) {
-      return 0;
-    }
-
-    return parsed.length;
+    return Array.isArray(parsed) ? parsed.length : 0;
   } catch {
     return 0;
   }
@@ -46,31 +40,21 @@ export default function Header({
   cartCount: number;
   onCart: () => void;
 }) {
-  const [open, setOpen] =
-    useState(false);
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [wishlistCount, setWishlistCount] = useState(0);
 
-  const [search, setSearch] =
-    useState("");
+  /* =========================
+     WISHLIST COUNT
+  ========================= */
 
-  const [wishlistCount, setWishlistCount] =
-    useState(0);
-
-  /*
-   * Load wishlist count when Header mounts.
-   */
   useEffect(() => {
     const updateWishlistCount = () => {
-      setWishlistCount(
-        getWishlistCount()
-      );
+      setWishlistCount(getWishlistCount());
     };
 
     updateWishlistCount();
 
-    /*
-     * ProductCard dispatches this event
-     * whenever a heart is clicked.
-     */
     window.addEventListener(
       "wishlist-updated",
       updateWishlistCount
@@ -84,110 +68,104 @@ export default function Header({
     };
   }, []);
 
-  /*
-   * Search
-   */
+  /* =========================
+     SEARCH
+  ========================= */
+
   function go() {
-    const q = search
-      .trim()
-      .toLowerCase();
+    const q = search.trim().toLowerCase();
 
     window.dispatchEvent(
-      new CustomEvent(
-        "product-search",
-        {
-          detail: q,
-        }
-      )
+      new CustomEvent("product-search", {
+        detail: q,
+      })
     );
 
-    document
-      .getElementById("shop")
-      ?.scrollIntoView({
-        behavior: "smooth",
-      });
-
+    /*
+     * Close mobile menu after searching.
+     */
     setOpen(false);
+
+    /*
+     * Give React time to update ProductGrid
+     * before scrolling.
+     */
+    setTimeout(() => {
+      document.getElementById("shop")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
   }
 
-  /*
-   * Clear search and show all products.
-   */
   function clearSearch() {
     setSearch("");
 
     window.dispatchEvent(
-      new CustomEvent(
-        "product-search",
-        {
-          detail: "",
-        }
-      )
+      new CustomEvent("product-search", {
+        detail: "",
+      })
     );
   }
 
-  /*
-   * Open Wishlist.
-   */
+  /* =========================
+     WISHLIST
+  ========================= */
+
   function openWishlist() {
-    /*
-     * Tell ProductGrid to show only
-     * wishlisted products.
-     */
     window.dispatchEvent(
-      new CustomEvent(
-        "wishlist-filter",
-        {
-          detail: true,
-        }
-      )
+      new CustomEvent("wishlist-filter", {
+        detail: true,
+      })
     );
 
-    /*
-     * Close mobile menu if open.
-     */
     setOpen(false);
 
-    /*
-     * Scroll to product section.
-     */
-    document
-      .getElementById("shop")
-      ?.scrollIntoView({
+    setTimeout(() => {
+      document.getElementById("shop")?.scrollIntoView({
         behavior: "smooth",
+        block: "start",
       });
+    }, 100);
   }
 
-  /*
-   * Home / All Products
-   */
+  /* =========================
+     SHOW ALL
+  ========================= */
+
   function showAllProducts() {
+    setSearch("");
+
     window.dispatchEvent(
-      new CustomEvent(
-        "wishlist-filter",
-        {
-          detail: false,
-        }
-      )
+      new CustomEvent("product-search", {
+        detail: "",
+      })
     );
 
     window.dispatchEvent(
-      new CustomEvent(
-        "category-filter",
-        {
-          detail: "All",
-        }
-      )
+      new CustomEvent("category-filter", {
+        detail: "All",
+      })
     );
 
     window.dispatchEvent(
-      new CustomEvent(
-        "product-search",
-        {
-          detail: "",
-        }
-      )
+      new CustomEvent("wishlist-filter", {
+        detail: false,
+      })
     );
+  }
+
+  /* =========================
+     SEARCH INPUT HANDLER
+  ========================= */
+
+  function handleSearchKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go();
+    }
   }
 
   return (
@@ -196,32 +174,22 @@ export default function Header({
         <div className="container-wide header-inner">
 
           {/* =========================
-              MOBILE MENU
-          ========================== */}
+              MOBILE MENU BUTTON
+          ========================= */}
 
           <button
             type="button"
             className="mobile-menu-trigger"
-            onClick={() =>
-              setOpen((v) => !v)
-            }
-            aria-label={
-              open
-                ? "Close menu"
-                : "Open menu"
-            }
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
-            {open ? (
-              <X size={20} />
-            ) : (
-              <Menu size={20} />
-            )}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
 
           {/* =========================
               BRAND
-          ========================== */}
+          ========================= */}
 
           <a
             href="#"
@@ -237,19 +205,14 @@ export default function Header({
             </span>
 
             <span className="brand-copy">
-              <strong>
-                GODAVARI
-              </strong>
-
-              <small>
-                BASKET
-              </small>
+              <strong>GODAVARI</strong>
+              <small>BASKET</small>
             </span>
           </a>
 
           {/* =========================
-              DESKTOP NAVIGATION
-          ========================== */}
+              DESKTOP NAV
+          ========================= */}
 
           <nav
             className="desktop-nav"
@@ -258,18 +221,13 @@ export default function Header({
             <a
               className="active"
               href="#"
-              onClick={() => {
-                showAllProducts();
-              }}
+              onClick={showAllProducts}
             >
               HOME
             </a>
 
             <a href="#collections">
-              SHOP{" "}
-              <ChevronDown
-                size={12}
-              />
+              SHOP <ChevronDown size={12} />
             </a>
 
             <a href="#about">
@@ -291,11 +249,11 @@ export default function Header({
 
           {/* =========================
               HEADER ACTIONS
-          ========================== */}
+          ========================= */}
 
           <div className="header-actions">
 
-            {/* REGION / CURRENCY */}
+            {/* REGION */}
 
             <button
               type="button"
@@ -303,46 +261,28 @@ export default function Header({
               aria-label="Select region and currency"
             >
               <span>🇮🇳</span>
-
-              <span>
-                India (INR)
-              </span>
-
-              <ChevronDown
-                size={12}
-              />
+              <span>India (INR)</span>
+              <ChevronDown size={12} />
             </button>
 
             {/* DESKTOP SEARCH */}
 
             <div className="header-search">
-
               <input
+                type="search"
                 value={search}
-                onChange={(e) =>
-                  setSearch(
-                    e.target.value
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (
-                    e.key ===
-                    "Enter"
-                  ) {
-                    go();
-                  }
-                }}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search"
                 aria-label="Search products"
+                autoComplete="off"
               />
 
               {search && (
                 <button
                   type="button"
                   className="search-clear"
-                  onClick={
-                    clearSearch
-                  }
+                  onClick={clearSearch}
                   aria-label="Clear search"
                 >
                   <X size={14} />
@@ -365,54 +305,32 @@ export default function Header({
               className="header-icon"
               aria-label="Account"
             >
-              <UserRound
-                size={20}
-              />
+              <UserRound size={20} />
             </button>
 
-            {/* =========================
-                WISHLIST
-            ========================== */}
+            {/* WISHLIST */}
 
             <button
               type="button"
               className={`header-icon desktop-heart ${
-                wishlistCount > 0
-                  ? "has-wishlist"
-                  : ""
+                wishlistCount > 0 ? "has-wishlist" : ""
               }`}
-              onClick={
-                openWishlist
-              }
-              aria-label={`Wishlist${
-                wishlistCount > 0
-                  ? `, ${wishlistCount} items`
-                  : ""
-              }`}
+              onClick={openWishlist}
+              aria-label="Wishlist"
             >
               <Heart
                 size={19}
-                fill={
-                  wishlistCount > 0
-                    ? "currentColor"
-                    : "none"
-                }
+                fill={wishlistCount > 0 ? "currentColor" : "none"}
               />
 
-              {wishlistCount >
-                0 && (
+              {wishlistCount > 0 && (
                 <span>
-                  {wishlistCount >
-                  99
-                    ? "99+"
-                    : wishlistCount}
+                  {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
               )}
             </button>
 
-            {/* =========================
-                CART
-            ========================== */}
+            {/* CART */}
 
             <button
               type="button"
@@ -420,16 +338,11 @@ export default function Header({
               onClick={onCart}
               aria-label="Basket"
             >
-              <ShoppingBag
-                size={21}
-              />
+              <ShoppingBag size={21} />
 
               {cartCount > 0 && (
                 <span>
-                  {cartCount >
-                  99
-                    ? "99+"
-                    : cartCount}
+                  {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
             </button>
@@ -437,8 +350,8 @@ export default function Header({
         </div>
 
         {/* =========================
-            MOBILE PANEL
-        ========================== */}
+            MOBILE MENU
+        ========================= */}
 
         {open && (
           <div className="mobile-panel">
@@ -446,32 +359,20 @@ export default function Header({
             {/* MOBILE SEARCH */}
 
             <div className="mobile-search">
-
               <input
+                type="search"
                 value={search}
-                onChange={(e) =>
-                  setSearch(
-                    e.target.value
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (
-                    e.key ===
-                    "Enter"
-                  ) {
-                    go();
-                  }
-                }}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search Godavari Basket"
                 aria-label="Search products"
+                autoComplete="off"
               />
 
               {search && (
                 <button
                   type="button"
-                  onClick={
-                    clearSearch
-                  }
+                  onClick={clearSearch}
                   aria-label="Clear search"
                 >
                   <X size={15} />
@@ -480,14 +381,18 @@ export default function Header({
 
               <button
                 type="button"
-                onClick={go}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  go();
+                }}
                 aria-label="Search"
               >
                 <Search size={18} />
               </button>
             </div>
 
-            {/* MOBILE HOME */}
+            {/* HOME */}
 
             <a
               href="#"
@@ -499,44 +404,31 @@ export default function Header({
               HOME
             </a>
 
-            {/* MOBILE SHOP */}
+            {/* SHOP */}
 
             <a
               href="#collections"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               SHOP
             </a>
 
-            {/* MOBILE WISHLIST */}
+            {/* WISHLIST */}
 
             <button
               type="button"
               className="mobile-menu-wishlist"
-              onClick={
-                openWishlist
-              }
+              onClick={openWishlist}
             >
               <Heart
                 size={17}
-                fill={
-                  wishlistCount > 0
-                    ? "currentColor"
-                    : "none"
-                }
+                fill={wishlistCount > 0 ? "currentColor" : "none"}
               />
 
-              <span>
-                WISHLIST
-              </span>
+              <span>WISHLIST</span>
 
-              {wishlistCount >
-                0 && (
-                <b>
-                  {wishlistCount}
-                </b>
+              {wishlistCount > 0 && (
+                <b>{wishlistCount}</b>
               )}
             </button>
 
@@ -544,36 +436,28 @@ export default function Header({
 
             <a
               href="#about"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               OUR STORY
             </a>
 
             <a
               href="#gifting"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               GIFTING
             </a>
 
             <a
               href="#blog"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               BLOG
             </a>
 
             <a
               href="#contact"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               CONTACT
             </a>
