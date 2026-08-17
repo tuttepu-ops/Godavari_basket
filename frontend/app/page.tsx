@@ -189,9 +189,24 @@ export default function Home() {
         <a href="#collections">
           <span>◉</span>Shop
         </a>
-        <a href="#shop">
-          <span>♡</span>Wishlist
-        </a>
+        <button
+  onClick={() => {
+    window.dispatchEvent(
+      new CustomEvent("wishlist-filter", {
+        detail: true,
+      })
+    );
+
+    document
+      .getElementById("shop")
+      ?.scrollIntoView({
+        behavior: "smooth",
+      });
+  }}
+>
+  <span>♡</span>
+  Wishlist
+</button>
         <button onClick={() => setCartOpen(true)}>
           <span>🛍</span>Cart{count > 0 && <b>{count}</b>}
         </button>
