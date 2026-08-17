@@ -130,6 +130,11 @@ def sheet_products() -> list[dict[str, Any]]:
             "stock": integer("stock"),
             "active": row.get("active", "true").strip().lower()
             not in {"false", "0", "no"},
+            "available_regions": row.get(
+        "available_regions",
+        "IN"
+    ).strip().upper(),
+}
         }
         if p["active"]:
             out.append(p)
