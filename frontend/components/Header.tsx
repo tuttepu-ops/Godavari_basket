@@ -85,14 +85,8 @@ export default function Header({
       })
     );
 
-    /*
-     * Close mobile menu if it is open.
-     */
     setOpen(false);
 
-    /*
-     * Scroll to products.
-     */
     setTimeout(() => {
       document.getElementById("shop")?.scrollIntoView({
         behavior: "smooth",
@@ -192,7 +186,7 @@ export default function Header({
           <button
             type="button"
             className="mobile-menu-trigger"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen((value) => !value)}
             aria-label={
               open ? "Close menu" : "Open menu"
             }
@@ -213,7 +207,8 @@ export default function Header({
             href="#"
             className="brand-mark"
             aria-label="Godavari Basket home"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               showAllProducts();
               setOpen(false);
             }}
@@ -239,7 +234,10 @@ export default function Header({
             <a
               className="active"
               href="#"
-              onClick={showAllProducts}
+              onClick={(e) => {
+                e.preventDefault();
+                showAllProducts();
+              }}
             >
               HOME
             </a>
@@ -282,16 +280,12 @@ export default function Header({
               aria-label="Select region and currency"
             >
               <span>🇮🇳</span>
-
-              <span>
-                India (INR)
-              </span>
-
+              <span>India (INR)</span>
               <ChevronDown size={12} />
             </button>
 
             {/* =================================================
-                DESKTOP SEARCH
+                DESKTOP SEARCH ONLY
             ================================================= */}
 
             <div className="header-search">
@@ -302,9 +296,7 @@ export default function Header({
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                onKeyDown={
-                  handleSearchKeyDown
-                }
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search"
                 aria-label="Search products"
                 autoComplete="off"
@@ -313,7 +305,6 @@ export default function Header({
               {search && (
                 <button
                   type="button"
-                  className="search-clear"
                   onClick={clearSearch}
                   aria-label="Clear search"
                 >
@@ -332,16 +323,17 @@ export default function Header({
             </div>
 
             {/* =================================================
-                MOBILE SEARCH
+                MOBILE SEARCH ONLY
+
                 IMPORTANT:
-                This is OUTSIDE mobile-panel.
+                This is NOT inside mobile-panel.
             ================================================= */}
 
             <div className="mobile-search">
 
               <Search
-                size={16}
-                className="mobile-search-leading-icon"
+                size={15}
+                className="mobile-search-icon"
               />
 
               <input
@@ -350,9 +342,7 @@ export default function Header({
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                onKeyDown={
-                  handleSearchKeyDown
-                }
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search"
                 aria-label="Search products"
                 autoComplete="off"
@@ -373,7 +363,7 @@ export default function Header({
                 onClick={go}
                 aria-label="Search"
               >
-                <Search size={16} />
+                <Search size={15} />
               </button>
 
             </div>
@@ -396,11 +386,7 @@ export default function Header({
 
             <button
               type="button"
-              className={`header-icon desktop-heart ${
-                wishlistCount > 0
-                  ? "has-wishlist"
-                  : ""
-              }`}
+              className="header-icon desktop-heart"
               onClick={openWishlist}
               aria-label="Wishlist"
             >
@@ -449,8 +435,7 @@ export default function Header({
         {/* =====================================================
             MOBILE MENU
 
-            SEARCH IS NO LONGER HERE.
-            Only navigation items remain.
+            NO SEARCH BAR HERE
         ===================================================== */}
 
         {open && (
@@ -460,7 +445,8 @@ export default function Header({
 
             <a
               href="#"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 showAllProducts();
                 setOpen(false);
               }}
@@ -472,9 +458,7 @@ export default function Header({
 
             <a
               href="#collections"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               SHOP
             </a>
@@ -510,9 +494,7 @@ export default function Header({
 
             <a
               href="#about"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               OUR STORY
             </a>
@@ -521,9 +503,7 @@ export default function Header({
 
             <a
               href="#gifting"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               GIFTING
             </a>
@@ -532,9 +512,7 @@ export default function Header({
 
             <a
               href="#blog"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               BLOG
             </a>
@@ -543,9 +521,7 @@ export default function Header({
 
             <a
               href="#contact"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               CONTACT
             </a>
