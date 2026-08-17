@@ -15,7 +15,15 @@ import {
   type KeyboardEvent,
 } from "react";
 
+/* =========================================================
+   WISHLIST STORAGE KEY
+========================================================= */
+
 const WISHLIST_KEY = "godavari-basket-wishlist";
+
+/* =========================================================
+   GET WISHLIST COUNT
+========================================================= */
 
 function getWishlistCount(): number {
   if (typeof window === "undefined") {
@@ -31,11 +39,24 @@ function getWishlistCount(): number {
 
     const parsed = JSON.parse(stored);
 
-    return Array.isArray(parsed) ? parsed.length : 0;
-  } catch {
+    if (!Array.isArray(parsed)) {
+      return 0;
+    }
+
+    return parsed.length;
+  } catch (error) {
+    console.error(
+      "Unable to read wishlist:",
+      error
+    );
+
     return 0;
   }
 }
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 export default function Header({
   cartCount,
@@ -46,11 +67,12 @@ export default function Header({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [wishlistCount, setWishlistCount] = useState(0);
+  const [wishlistCount, setWishlistCount] =
+    useState(0);
 
-  /* =========================================================
+  /* =======================================================
      WISHLIST COUNT
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -64,40 +86,66 @@ export default function Header({
       updateWishlistCount
     );
 
+    /*
+     * Also listen for storage changes.
+     * This helps when wishlist changes from another
+     * component/window.
+     */
+    window.addEventListener(
+      "storage",
+      updateWishlistCount
+    );
+
     return () => {
       window.removeEventListener(
         "wishlist-updated",
         updateWishlistCount
       );
+
+      window.removeEventListener(
+        "storage",
+        updateWishlistCount
+      );
     };
   }, []);
 
-  /* =========================================================
+  /* =======================================================
      SEARCH
-  ========================================================= */
+  ======================================================= */
 
   function go() {
     const q = search.trim().toLowerCase();
 
+    /*
+     * Send search to ProductGrid.
+     */
     window.dispatchEvent(
       new CustomEvent("product-search", {
         detail: q,
       })
     );
 
+    /*
+     * Close mobile menu if open.
+     */
     setOpen(false);
 
+    /*
+     * Scroll to product section.
+     */
     setTimeout(() => {
-      document.getElementById("shop")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      document
+        .getElementById("shop")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
     }, 100);
   }
 
-  /* =========================================================
+  /* =======================================================
      SEARCH KEYBOARD
-  ========================================================= */
+  ======================================================= */
 
   function handleSearchKeyDown(
     e: KeyboardEvent<HTMLInputElement>
@@ -108,9 +156,9 @@ export default function Header({
     }
   }
 
-  /* =========================================================
+  /* =======================================================
      CLEAR SEARCH
-  ========================================================= */
+  ======================================================= */
 
   function clearSearch() {
     setSearch("");
@@ -122,46 +170,66 @@ export default function Header({
     );
   }
 
-  /* =========================================================
-     WISHLIST
-  ========================================================= */
+  /* =======================================================
+     OPEN WISHLIST
+  ======================================================= */
 
   function openWishlist() {
+    /*
+     * Tell ProductGrid to show wishlist products.
+     */
     window.dispatchEvent(
       new CustomEvent("wishlist-filter", {
         detail: true,
       })
     );
 
+    /*
+     * Close mobile menu.
+     */
     setOpen(false);
 
+    /*
+     * Scroll to products.
+     */
     setTimeout(() => {
-      document.getElementById("shop")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      document
+        .getElementById("shop")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
     }, 100);
   }
 
-  /* =========================================================
+  /* =======================================================
      SHOW ALL PRODUCTS
-  ========================================================= */
+  ======================================================= */
 
   function showAllProducts() {
     setSearch("");
 
+    /*
+     * Clear search.
+     */
     window.dispatchEvent(
       new CustomEvent("product-search", {
         detail: "",
       })
     );
 
+    /*
+     * Reset category.
+     */
     window.dispatchEvent(
       new CustomEvent("category-filter", {
         detail: "All",
       })
     );
 
+    /*
+     * Disable wishlist filter.
+     */
     window.dispatchEvent(
       new CustomEvent("wishlist-filter", {
         detail: false,
@@ -169,26 +237,34 @@ export default function Header({
     );
   }
 
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
     <>
       <header className="site-header">
 
-        {/* =====================================================
+        {/* =================================================
             HEADER INNER
-        ===================================================== */}
+        ================================================= */}
 
         <div className="container-wide header-inner">
 
-          {/* ===================================================
+          {/* ===============================================
               MOBILE MENU BUTTON
-          =================================================== */}
+          =============================================== */}
 
           <button
             type="button"
             className="mobile-menu-trigger"
-            onClick={() => setOpen((value) => !value)}
+            onClick={() =>
+              setOpen((value) => !value)
+            }
             aria-label={
-              open ? "Close menu" : "Open menu"
+              open
+                ? "Close menu"
+                : "Open menu"
             }
             aria-expanded={open}
           >
@@ -199,9 +275,9 @@ export default function Header({
             )}
           </button>
 
-          {/* ===================================================
+          {/* ===============================================
               BRAND
-          =================================================== */}
+          =============================================== */}
 
           <a
             href="#"
@@ -209,8 +285,15 @@ export default function Header({
             aria-label="Godavari Basket home"
             onClick={(e) => {
               e.preventDefault();
+
               showAllProducts();
+
               setOpen(false);
+
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
             }}
           >
             <span className="brand-emblem">
@@ -223,56 +306,76 @@ export default function Header({
             </span>
           </a>
 
-          {/* ===================================================
+          {/* ===============================================
               DESKTOP NAVIGATION
-          =================================================== */}
+          =============================================== */}
 
           <nav
             className="desktop-nav"
             aria-label="Primary navigation"
           >
+            {/* HOME */}
+
             <a
               className="active"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
+
                 showAllProducts();
+
+                setOpen(false);
+
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
               }}
             >
               HOME
             </a>
+
+            {/* SHOP */}
 
             <a href="#collections">
               SHOP
               <ChevronDown size={12} />
             </a>
 
+            {/* OUR STORY */}
+
             <a href="#about">
               OUR STORY
             </a>
+
+            {/* GIFTING */}
 
             <a href="#gifting">
               GIFTING
             </a>
 
+            {/* BLOG */}
+
             <a href="#blog">
               BLOG
             </a>
+
+            {/* CONTACT */}
 
             <a href="#contact">
               CONTACT
             </a>
           </nav>
 
-          {/* ===================================================
+          {/* ===============================================
               HEADER ACTIONS
-          =================================================== */}
+          =============================================== */}
 
           <div className="header-actions">
 
-            {/* =================================================
+            {/* =============================================
                 REGION / CURRENCY
-            ================================================= */}
+            ============================================= */}
 
             <button
               type="button"
@@ -280,13 +383,18 @@ export default function Header({
               aria-label="Select region and currency"
             >
               <span>🇮🇳</span>
-              <span>India (INR)</span>
+
+              <span>
+                India (INR)
+              </span>
+
               <ChevronDown size={12} />
             </button>
 
-            {/* =================================================
-                DESKTOP SEARCH ONLY
-            ================================================= */}
+            {/* =============================================
+                DESKTOP SEARCH
+                THIS IS THE ONLY SEARCH ON DESKTOP
+            ============================================= */}
 
             <div className="header-search">
 
@@ -296,7 +404,9 @@ export default function Header({
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                onKeyDown={handleSearchKeyDown}
+                onKeyDown={
+                  handleSearchKeyDown
+                }
                 placeholder="Search"
                 aria-label="Search products"
                 autoComplete="off"
@@ -322,18 +432,22 @@ export default function Header({
 
             </div>
 
-            {/* =================================================
-                MOBILE SEARCH ONLY
+            {/* =============================================
+                MOBILE SEARCH
 
                 IMPORTANT:
-                This is NOT inside mobile-panel.
-            ================================================= */}
+                NEW CLASS NAME.
 
-            <div className="mobile-search">
+                DO NOT use .mobile-search
+                because your existing CSS already
+                contains rules for that class.
+            ============================================= */}
+
+            <div className="mobile-header-search">
 
               <Search
                 size={15}
-                className="mobile-search-icon"
+                className="mobile-header-search-icon"
               />
 
               <input
@@ -342,7 +456,9 @@ export default function Header({
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                onKeyDown={handleSearchKeyDown}
+                onKeyDown={
+                  handleSearchKeyDown
+                }
                 placeholder="Search"
                 aria-label="Search products"
                 autoComplete="off"
@@ -368,9 +484,9 @@ export default function Header({
 
             </div>
 
-            {/* =================================================
+            {/* =============================================
                 ACCOUNT
-            ================================================= */}
+            ============================================= */}
 
             <button
               type="button"
@@ -380,9 +496,9 @@ export default function Header({
               <UserRound size={20} />
             </button>
 
-            {/* =================================================
+            {/* =============================================
                 DESKTOP WISHLIST
-            ================================================= */}
+            ============================================= */}
 
             <button
               type="button"
@@ -408,9 +524,9 @@ export default function Header({
               )}
             </button>
 
-            {/* =================================================
+            {/* =============================================
                 CART
-            ================================================= */}
+            ============================================= */}
 
             <button
               type="button"
@@ -432,38 +548,54 @@ export default function Header({
           </div>
         </div>
 
-        {/* =====================================================
+        {/* =================================================
             MOBILE MENU
 
-            NO SEARCH BAR HERE
-        ===================================================== */}
+            IMPORTANT:
+            THERE IS NO SEARCH BAR HERE.
+        ================================================= */}
 
         {open && (
           <div className="mobile-panel">
 
-            {/* HOME */}
+            {/* =============================================
+                HOME
+            ============================================= */}
 
             <a
               href="#"
               onClick={(e) => {
                 e.preventDefault();
+
                 showAllProducts();
+
                 setOpen(false);
+
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
               }}
             >
               HOME
             </a>
 
-            {/* SHOP */}
+            {/* =============================================
+                SHOP
+            ============================================= */}
 
             <a
               href="#collections"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               SHOP
             </a>
 
-            {/* WISHLIST */}
+            {/* =============================================
+                WISHLIST
+            ============================================= */}
 
             <button
               type="button"
@@ -490,38 +622,54 @@ export default function Header({
               )}
             </button>
 
-            {/* OUR STORY */}
+            {/* =============================================
+                OUR STORY
+            ============================================= */}
 
             <a
               href="#about"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               OUR STORY
             </a>
 
-            {/* GIFTING */}
+            {/* =============================================
+                GIFTING
+            ============================================= */}
 
             <a
               href="#gifting"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               GIFTING
             </a>
 
-            {/* BLOG */}
+            {/* =============================================
+                BLOG
+            ============================================= */}
 
             <a
               href="#blog"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               BLOG
             </a>
 
-            {/* CONTACT */}
+            {/* =============================================
+                CONTACT
+            ============================================= */}
 
             <a
               href="#contact"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               CONTACT
             </a>
