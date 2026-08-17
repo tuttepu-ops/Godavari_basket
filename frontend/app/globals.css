@@ -595,7 +595,7 @@ a{
 
 
 /* =========================================================
-   HERO — MOBILE
+   HERO â€” MOBILE
    Desktop above remains unchanged
 ========================================================= */
 
@@ -1349,7 +1349,7 @@ a{
 }
 
 .map-placeholder:after{
-  content:"⌁";
+  content:"âŒ";
   position:absolute;
   right:10px;
   bottom:-10px;
@@ -2308,7 +2308,7 @@ a{
 }
 
 /* =========================================================
-   MOBILE HERO FIX — DOES NOT AFFECT DESKTOP
+   MOBILE HERO FIX â€” DOES NOT AFFECT DESKTOP
 ========================================================= */
 
 @media (max-width:760px){
@@ -2371,5 +2371,255 @@ a{
 
   .hero-dots{
     bottom:5px !important;
+  }
+}
+/* =========================================================
+   GODAVARI BASKET - SEARCH / REGION / WISHLIST FIXES
+   Added without removing the existing design CSS above.
+========================================================= */
+
+/* ---------------- SEARCH ---------------- */
+.header-search {
+  display:flex;
+  align-items:center;
+  height:38px;
+  border-bottom:1px solid rgba(218,190,117,.35);
+}
+
+.header-search input {
+  width:145px;
+  height:36px;
+  border:0;
+  border-bottom:0;
+  background:transparent;
+  outline:0;
+  color:#fff;
+  font-size:11px;
+  padding:0 4px;
+  transition:width .25s ease;
+}
+
+.header-search input::placeholder {
+  color:rgba(255,255,255,.55);
+}
+
+.header-search input:focus {
+  width:190px;
+}
+
+.header-search button {
+  flex-shrink:0;
+}
+
+/* ---------------- REGION / CURRENCY ---------------- */
+.region-wrapper {
+  position:relative;
+}
+
+.currency-select {
+  cursor:pointer;
+  background:transparent;
+}
+
+.region-dropdown {
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  min-width:190px;
+  background:#062a18;
+  border:1px solid rgba(216,188,114,.25);
+  box-shadow:0 15px 40px rgba(0,0,0,.28);
+  border-radius:10px;
+  padding:6px;
+  z-index:300;
+}
+
+.region-option {
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#f5ecd5;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 11px;
+  border-radius:7px;
+  cursor:pointer;
+  font-size:11px;
+  text-align:left;
+}
+
+.region-option:hover,
+.region-option.selected {
+  background:rgba(216,188,114,.1);
+  color:#f0d57e;
+}
+
+.region-check {
+  margin-left:auto;
+}
+
+/* ---------------- WISHLIST BADGE ---------------- */
+.desktop-heart span {
+  position:absolute;
+  top:0;
+  right:0;
+  min-width:15px;
+  height:15px;
+  padding:0 3px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#e9ca76;
+  color:#092116;
+  font-size:8px;
+  font-weight:700;
+}
+
+/* ---------------- ACTIVE FILTER STATUS ---------------- */
+.active-filter-status {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+  margin:12px 0;
+}
+
+.active-filter-status span {
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#f4efe3;
+  color:#655d4f;
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* ---------------- MOBILE REGION / WISHLIST ---------------- */
+.mobile-region-selector,
+.mobile-wishlist-link {
+  display:none;
+}
+
+/* ---------------- TABLET ---------------- */
+@media (max-width:1050px) and (min-width:761px) {
+  .currency-select {
+    display:flex;
+    font-size:9px;
+    padding:0 9px;
+  }
+
+  .header-search input {
+    width:110px;
+  }
+
+  .header-search input:focus {
+    width:150px;
+  }
+}
+
+/* ---------------- MOBILE ---------------- */
+@media (max-width:760px) {
+  .header-search {
+    display:block;
+    height:auto;
+    border-bottom:0;
+  }
+
+  .header-search input {
+    display:none;
+  }
+
+  .header-search button,
+  .header-icon {
+    width:35px;
+    height:35px;
+  }
+
+  .mobile-region-selector {
+    display:block;
+    padding:10px 0 12px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+  }
+
+  .mobile-region-selector > span {
+    display:block;
+    margin-bottom:8px;
+    color:#c9b57b;
+    font-size:8px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+  }
+
+  .mobile-region-selector > div {
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+
+  .mobile-region-option {
+    border:1px solid rgba(216,188,114,.2);
+    background:transparent;
+    color:#f5ecd5;
+    padding:8px 10px;
+    border-radius:999px;
+    font-size:9px;
+    cursor:pointer;
+  }
+
+  .mobile-region-option.selected {
+    background:rgba(216,188,114,.12);
+    border-color:#d6b967;
+    color:#f0d57e;
+  }
+
+  .mobile-wishlist-link {
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border:0;
+    background:transparent;
+    color:#f5ecd5;
+    padding:13px 0;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    cursor:pointer;
+    text-align:left;
+  }
+
+  .mobile-wishlist-link span {
+    color:#d6b967;
+  }
+
+  .mobile-panel button {
+    font-family:inherit;
+  }
+
+  .mobile-search button {
+    cursor:pointer;
+  }
+
+  .active-filter-status {
+    margin:8px 0 10px;
+    gap:5px;
+  }
+
+  .active-filter-status span {
+    font-size:7px;
+    padding:5px 7px;
+  }
+
+  .collection-head {
+    gap:12px;
+  }
+
+  .collection-head .view-all {
+    flex-shrink:0;
   }
 }
