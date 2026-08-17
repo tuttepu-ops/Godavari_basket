@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 
 import {
