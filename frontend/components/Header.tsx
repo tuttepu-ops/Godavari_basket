@@ -27,7 +27,11 @@ function getWishlistCount(): number {
 
     const parsed = JSON.parse(stored);
 
-    return Array.isArray(parsed) ? parsed.length : 0;
+    if (!Array.isArray(parsed)) {
+      return 0;
+    }
+
+    return parsed.length;
   } catch {
     return 0;
   }
@@ -44,9 +48,9 @@ export default function Header({
   const [search, setSearch] = useState("");
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  /* =========================
+  /* =====================================================
      WISHLIST COUNT
-  ========================= */
+  ===================================================== */
 
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -68,9 +72,9 @@ export default function Header({
     };
   }, []);
 
-  /* =========================
+  /* =====================================================
      SEARCH
-  ========================= */
+  ===================================================== */
 
   function go() {
     const q = search.trim().toLowerCase();
@@ -87,8 +91,8 @@ export default function Header({
     setOpen(false);
 
     /*
-     * Give React time to update ProductGrid
-     * before scrolling.
+     * Scroll to product section after the
+     * search event has been dispatched.
      */
     setTimeout(() => {
       document.getElementById("shop")?.scrollIntoView({
@@ -97,6 +101,23 @@ export default function Header({
       });
     }, 100);
   }
+
+  /* =====================================================
+     SEARCH KEYBOARD HANDLER
+  ===================================================== */
+
+  function handleSearchKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go();
+    }
+  }
+
+  /* =====================================================
+     CLEAR SEARCH
+  ===================================================== */
 
   function clearSearch() {
     setSearch("");
@@ -108,9 +129,9 @@ export default function Header({
     );
   }
 
-  /* =========================
-     WISHLIST
-  ========================= */
+  /* =====================================================
+     OPEN WISHLIST
+  ===================================================== */
 
   function openWishlist() {
     window.dispatchEvent(
@@ -129,9 +150,9 @@ export default function Header({
     }, 100);
   }
 
-  /* =========================
-     SHOW ALL
-  ========================= */
+  /* =====================================================
+     SHOW ALL PRODUCTS
+  ===================================================== */
 
   function showAllProducts() {
     setSearch("");
@@ -155,27 +176,17 @@ export default function Header({
     );
   }
 
-  /* =========================
-     SEARCH INPUT HANDLER
-  ========================= */
-
-  function handleSearchKeyDown(
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      go();
-    }
-  }
-
   return (
     <>
       <header className="site-header">
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
+
         <div className="container-wide header-inner">
 
-          {/* =========================
-              MOBILE MENU BUTTON
-          ========================= */}
+          {/* MOBILE MENU BUTTON */}
 
           <button
             type="button"
@@ -184,12 +195,14 @@ export default function Header({
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {open ? (
+              <X size={20} />
+            ) : (
+              <Menu size={20} />
+            )}
           </button>
 
-          {/* =========================
-              BRAND
-          ========================= */}
+          {/* BRAND */}
 
           <a
             href="#"
@@ -210,9 +223,9 @@ export default function Header({
             </span>
           </a>
 
-          {/* =========================
-              DESKTOP NAV
-          ========================= */}
+          {/* =================================================
+              DESKTOP NAVIGATION
+          ================================================= */}
 
           <nav
             className="desktop-nav"
@@ -227,7 +240,8 @@ export default function Header({
             </a>
 
             <a href="#collections">
-              SHOP <ChevronDown size={12} />
+              SHOP
+              <ChevronDown size={12} />
             </a>
 
             <a href="#about">
@@ -247,13 +261,13 @@ export default function Header({
             </a>
           </nav>
 
-          {/* =========================
+          {/* =================================================
               HEADER ACTIONS
-          ========================= */}
+          ================================================= */}
 
           <div className="header-actions">
 
-            {/* REGION */}
+            {/* REGION / CURRENCY */}
 
             <button
               type="button"
@@ -261,18 +275,27 @@ export default function Header({
               aria-label="Select region and currency"
             >
               <span>🇮🇳</span>
-              <span>India (INR)</span>
+
+              <span>
+                India (INR)
+              </span>
+
               <ChevronDown size={12} />
             </button>
 
             {/* DESKTOP SEARCH */}
 
             <div className="header-search">
+
               <input
                 type="search"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={handleSearchKeyDown}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                onKeyDown={
+                  handleSearchKeyDown
+                }
                 placeholder="Search"
                 aria-label="Search products"
                 autoComplete="off"
@@ -296,6 +319,7 @@ export default function Header({
               >
                 <Search size={20} />
               </button>
+
             </div>
 
             {/* ACCOUNT */}
@@ -308,29 +332,41 @@ export default function Header({
               <UserRound size={20} />
             </button>
 
-            {/* WISHLIST */}
+            {/* =================================================
+                DESKTOP WISHLIST
+            ================================================= */}
 
             <button
               type="button"
               className={`header-icon desktop-heart ${
-                wishlistCount > 0 ? "has-wishlist" : ""
+                wishlistCount > 0
+                  ? "has-wishlist"
+                  : ""
               }`}
               onClick={openWishlist}
               aria-label="Wishlist"
             >
               <Heart
                 size={19}
-                fill={wishlistCount > 0 ? "currentColor" : "none"}
+                fill={
+                  wishlistCount > 0
+                    ? "currentColor"
+                    : "none"
+                }
               />
 
               {wishlistCount > 0 && (
                 <span>
-                  {wishlistCount > 99 ? "99+" : wishlistCount}
+                  {wishlistCount > 99
+                    ? "99+"
+                    : wishlistCount}
                 </span>
               )}
             </button>
 
-            {/* CART */}
+            {/* =================================================
+                CART
+            ================================================= */}
 
             <button
               type="button"
@@ -342,16 +378,20 @@ export default function Header({
 
               {cartCount > 0 && (
                 <span>
-                  {cartCount > 99 ? "99+" : cartCount}
+                  {cartCount > 99
+                    ? "99+"
+                    : cartCount}
                 </span>
               )}
             </button>
+
           </div>
         </div>
 
-        {/* =========================
+        {/* =================================================
             MOBILE MENU
-        ========================= */}
+            SEARCH STAYS INSIDE THE MENU
+        ================================================= */}
 
         {open && (
           <div className="mobile-panel">
@@ -359,11 +399,16 @@ export default function Header({
             {/* MOBILE SEARCH */}
 
             <div className="mobile-search">
+
               <input
                 type="search"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={handleSearchKeyDown}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                onKeyDown={
+                  handleSearchKeyDown
+                }
                 placeholder="Search Godavari Basket"
                 aria-label="Search products"
                 autoComplete="off"
@@ -381,15 +426,12 @@ export default function Header({
 
               <button
                 type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  go();
-                }}
+                onClick={go}
                 aria-label="Search"
               >
                 <Search size={18} />
               </button>
+
             </div>
 
             {/* HOME */}
@@ -408,12 +450,16 @@ export default function Header({
 
             <a
               href="#collections"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               SHOP
             </a>
 
-            {/* WISHLIST */}
+            {/* =================================================
+                WISHLIST
+            ================================================= */}
 
             <button
               type="button"
@@ -422,47 +468,71 @@ export default function Header({
             >
               <Heart
                 size={17}
-                fill={wishlistCount > 0 ? "currentColor" : "none"}
+                fill={
+                  wishlistCount > 0
+                    ? "currentColor"
+                    : "none"
+                }
               />
 
-              <span>WISHLIST</span>
+              <span>
+                WISHLIST
+              </span>
 
               {wishlistCount > 0 && (
-                <b>{wishlistCount}</b>
+                <b>
+                  {wishlistCount}
+                </b>
               )}
             </button>
 
-            {/* OTHER LINKS */}
+            {/* OUR STORY */}
 
             <a
               href="#about"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               OUR STORY
             </a>
 
+            {/* GIFTING */}
+
             <a
               href="#gifting"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               GIFTING
             </a>
 
+            {/* BLOG */}
+
             <a
               href="#blog"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               BLOG
             </a>
 
+            {/* CONTACT */}
+
             <a
               href="#contact"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpen(false)
+              }
             >
               CONTACT
             </a>
+
           </div>
         )}
+
       </header>
     </>
   );
